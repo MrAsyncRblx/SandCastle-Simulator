@@ -1,6 +1,22 @@
 {
-  "files.exclude": {
-    "src/_framework/": true,
-    ".vscode": true
-  }
+    "files.exclude": {
+        "src/_framework/": true,
+        ".vscode": true,
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    },
+    "Lua.diagnostics.disable": [
+        "empty-block",
+        "undefined-global"
+    ],
+    "Lua.diagnostics.globals": [
+        "CFrame",
+        "Vector3",
+        "Instance",
+        "game",
+        "typeof",
+        "UDim2"
+    ]
 }
