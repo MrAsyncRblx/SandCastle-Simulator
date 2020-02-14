@@ -3,12 +3,6 @@
 -- February 13, 2020
 
 
---[[
-
-    Objects created are superclasses for the SandClass subclass.
-
-]]
-
 
 local BeachClass = {}
 BeachClass.__index = BeachClass
