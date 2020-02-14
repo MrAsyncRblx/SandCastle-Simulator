@@ -1,4 +1,4 @@
--- PlayerData Class
+-- Player Class
 -- MrAsync
 -- February 12, 2020
 
@@ -7,11 +7,12 @@
 local PlayerClass = {}
 PlayerClass.__index = PlayerClass
 
-
 --//Services
+local ServerScriptService = game:GetService("ServerScriptService")
 
 --//Controllers
 local DataStore2
+local TableUtils
 
 --//Classes
 
@@ -19,63 +20,49 @@ local DataStore2
 local PlayerData
 
 
---Constructor
-function PlayerClass.new(topPlayer) 
-    local self = setmetatable({
+--//Constructor
+function PlayerClass.new(topPlayer)
+	local self = setmetatable({
 
-        Player = topPlayer,
+		Player = topPlayer,
 
-        Data = {}
+	}, PlayerClass)
 
-    }, PlayerClass)
+	--Clone copy of default data
+	self.DefaultData = TableUtils.Copy(PlayerData.MetaData)
 
-    -- --Create hash containing DataStore2 Keys
-    -- for key, defaultValue in pairs(PlayerData.MetaData) do
-        
-    --     Data[key] = DataStore2(topPlayer, key)
+	--Add DataStore for each DataNode to self
+	for key, defaultValue in pairs(PlayerData.MetaData) do
+		self[key] = DataStore2(key, topPlayer)
+	end
 
-    -- end
-
-    return self
+	return self
 end
 
 
 function PlayerClass:Start()
-    --Combines sub-keys of PlayerData
-    DataStore2.Combine("PlayerData",
-        --//Essentials
-        "Cash",
-        "Snow",
 
-        --//Arrays
-        "Inventory",
-        "Buildings",
-        "HasPlayed",
+	--Combine all keys to master DataStore
+	for key, defaultValue in pairs(PlayerData.MetaData) do
+		DataStore2.Combine("PlayerData", key)
+	end
 
-        --//Tracked stats
-        "TimesPlayed",
-        "TotalTimePlayed",
-        "TotalSnowCollected",
-        "TotalCoinsCollected",
-
-        --//Framework
-        "Exists"
-    )
 end
 
 
 function PlayerClass:Init()
-    --//Services
+	--//Services
 
-    --//Controllers
-    DataStore2 = self.Modules.DataStore2
+	--//Controllers
+	DataStore2 = require(ServerScriptService:WaitForChild("DataStore2"))
+	TableUtils = self.Shared.TableUtil
 
-    --//Classes
+	--//Classes
 
-    --//Data
-    PlayerData = self.Modules.Data.Player
+	--//Data
+	PlayerData = self.Modules.Data.Player
 
 end
 
 
-return PlayerData
+return PlayerClass
