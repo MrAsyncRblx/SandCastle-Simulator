@@ -9,6 +9,8 @@ PlayerClass.__index = PlayerClass
 
 --//Services
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local MetaDataService
 
 --//Controllers
 local DataStore2
@@ -17,6 +19,8 @@ local TableUtils
 --//Classes
 
 --//Data
+
+--//Locals
 local PlayerData
 
 
@@ -24,7 +28,7 @@ local PlayerData
 function PlayerClass.new(topPlayer)
 	local self = setmetatable({
 
-		Player = topPlayer,
+		Player = topPlayer;
 
 	}, PlayerClass)
 
@@ -52,6 +56,7 @@ end
 
 function PlayerClass:Init()
 	--//Services
+	MetaDataService = self.Services.MetaDataService
 
 	--//Controllers
 	DataStore2 = require(ServerScriptService:WaitForChild("DataStore2"))
@@ -60,7 +65,9 @@ function PlayerClass:Init()
 	--//Classes
 
 	--//Data
-	PlayerData = self.Modules.Data.Player
+
+	--//Locals
+	PlayerData = require(ReplicatedFirst.MetaData:FindFirstChild("Player"))
 
 end
 
