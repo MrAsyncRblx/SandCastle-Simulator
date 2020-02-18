@@ -23,6 +23,7 @@ local BeachClass
 
 --//Locals
 local beaches
+local beachObjects
 
 
 --//Constructs beachObjects and calls beachObject:Setup() to initialize the first layer of sand
@@ -33,9 +34,17 @@ function BeachService:Start()
         
         --Construct a new BeachObject and initialize the first layer
         local beachObject = BeachClass.new(tonumber(beachContainer.Name), beachContainer)
+        beachContainer.SpawnPad:Destroy()
         beachObject:Setup()
         
+        beachObjects[beachContainer] = beachObject
     end
+end
+
+
+--//Grabs and returns beachObject stored by key beachContainer
+function BeachService:GetBeachObjectFromContainer(beachContainer)
+    return beachObjects[beachContainer]
 end
 
 
@@ -51,6 +60,7 @@ function BeachService:Init()
     
     --//Locals
     beaches = workspace.Beaches:GetChildren()
+    beachObjects = {}
     
 end
 

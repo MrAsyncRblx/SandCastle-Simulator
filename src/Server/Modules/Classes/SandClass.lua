@@ -8,6 +8,13 @@ local SandClass = {}
 SandClass.__index = SandClass
 
 
+--[[
+
+    Virtually represents physical sand objects
+
+]]
+
+
 --//Services
 local ServerStorage = game:GetService("ServerStorage")
 local MetaDataService
@@ -23,13 +30,14 @@ local resources
 
 
 --//Constructor
-function SandClass.new(sandId, worldPosition, listPosition)
+function SandClass.new(sandId, worldPosition, mapPosition, beachContainer)
     local self = setmetatable({
         Id = sandId,
 
         CFrame = worldPosition,
-        ListPosition = listPosition
-
+        MapPosition = mapPosition,
+        
+        ParentBeach = beachContainer
     }, SandClass)
 
     self:CreateSand()
@@ -43,8 +51,14 @@ function SandClass:CreateSand()
 
     --Clone sandBlock from Resources
     self.Sand = resources.Sand:FindFirstChild(self.Id):Clone()
-    self.Sand.Parent = workspace
+    self.Sand.Parent = self.ParentBeach.Sand
     self.Sand:SetPrimaryPartCFrame(self.CFrame)
+
+    local mapPositionValue = Instance.new("Vector3Value")
+    mapPositionValue.Name = "MapPosition"
+    mapPositionValue.Value = self.MapPosition
+    mapPositionValue.Parent = self.Sand
+
 end
 
 
