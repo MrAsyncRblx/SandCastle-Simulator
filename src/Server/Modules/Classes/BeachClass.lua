@@ -137,8 +137,8 @@ function BeachClass:Setup()
     local totalRows = (padSize.X - (sandSize.X * 0.5)) / 3
     local totalCols = (padSize.Z - (sandSize.Z * 0.5)) / 3
 
-    self.maxRow = totalRows + 1
-    self.maxCol = totalCols + 1
+    self.maxRow = totalRows
+    self.maxCol = totalCols
 
 
     --Calculate startingPosition
