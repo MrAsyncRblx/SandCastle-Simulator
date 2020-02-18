@@ -52,11 +52,12 @@ end
 
 --//Runs neccessary steps to farm the TargetBlock and spawn adjacentBlocks
 function BeachClass:FarmBlock(targetBlockPosition)
-    --Wipe targetBlock
+    --Wipe targetBlock, mark as collected
     local currentBlock = self:GetBlockAtPosition(targetBlockPosition)
     currentBlock.Sand:Destroy()
     self.SandMap[targetBlockPosition.Y][targetBlockPosition.X][targetBlockPosition.Z] = "Collected"
 
+    --//dear god help me find a cleaner way to do this
     --Calculate adjacentBlock positions
     local adjacentBlocks = {}
     adjacentBlocks.Bottom = targetBlockPosition + Vector3.new(0, 1, 0)
@@ -83,11 +84,12 @@ end
 
 --//Inserts the blockObject at the mapPosition in the SandMap array
 function BeachClass:SetBlockAtPosition(mapPosition, blockObject)
-    local preBlockObject = self:GetBlockAtPosition(mapPosition)
+    local positionData = self:GetBlockAtPosition(mapPosition)
 
     --Don't overwrite another blockObject
+    --Don't create block if block has already been farmed
     --Insert blockObject into proper position in SandMap
-    if (not preBlockObject) then
+    if ((not positionData) and (positionData ~= "Collected")) then
         self.SandMap[mapPosition.Y][mapPosition.X][mapPosition.Z] = blockObject
 
         return true
@@ -102,7 +104,6 @@ end
     Getters
 
 ]]
-
 
 --//Returns the BlockObject at a given MapPosition
 --//Returns nil of BlockObject does not exist
@@ -121,10 +122,7 @@ function BeachClass:GetBlockAtPosition(mapPosition)
     local rowMap = (layerMap[mapPosition.X] or {})
     self.SandMap[mapPosition.Y][mapPosition.X] = rowMap
 
-    --Get block at mapPosition.Z. 
-    local foundBlock = self.SandMap[mapPosition.Y][mapPosition.X][mapPosition.Z]
-
-    return foundBlock
+    return self.SandMap[mapPosition.Y][mapPosition.X][mapPosition.Z]
 end
 
 
