@@ -52,9 +52,11 @@ end
 
 --//Runs neccessary steps to farm the TargetBlock and spawn adjacentBlocks
 function BeachClass:FarmBlock(targetBlockPosition)
-    --Wipe targetBlock, mark as collected
+    --Wipe targetBlock like thanos
     local currentBlock = self:GetBlockAtPosition(targetBlockPosition)
     currentBlock.Sand:Destroy()
+
+    --Mark position as Collected
     self.SandMap[targetBlockPosition.Y][targetBlockPosition.X][targetBlockPosition.Z] = "Collected"
 
     --//dear god help me find a cleaner way to do this
@@ -72,7 +74,7 @@ function BeachClass:FarmBlock(targetBlockPosition)
         --Don't overwrite another blockObject, only spawn block onTop of targetBlock if it's underneath the surface
         if (not self:GetBlockAtPosition(mapPosition) and self:GetBlockAtPosition(mapPosition) ~= "Collected") then
             --Calculate the worldPosition
-            local worldPosition = self.CornerPosition + Vector3.new((mapPosition.X - 1) * 3, (mapPosition.Y - 1) * -3, (mapPosition.Z - 1) * 3)
+            local worldPosition = self.CornerPosition + Vector3.new((mapPosition.X - 1) * 4, (mapPosition.Y - 1) * -4, (mapPosition.Z - 1) * 4)
 
             --Construct a new blockObject
             local newBlock = SandClass.new(self.MetaData.Sand[1], worldPosition, mapPosition, self.Container)
@@ -129,17 +131,16 @@ end
 --//Generates the initial layer of sand for the beach
 function BeachClass:Setup()
     --Calculate sizes, cframes and rows / columns
-    local sandSize = Vector3.new(3, 3, 3)
+    local sandSize = Vector3.new(4, 4, 4)
 
     local padSize = self.SpawnPad.Size
     local padCFrame = self.SpawnPad.CFrame
 
-    local totalRows = (padSize.X - (sandSize.X * 0.5)) / 3
-    local totalCols = (padSize.Z - (sandSize.Z * 0.5)) / 3
+    local totalRows = (padSize.X - (sandSize.X * 0.5)) / 4
+    local totalCols = (padSize.Z - (sandSize.Z * 0.5)) / 4
 
     self.maxRow = math.floor(totalRows + 1)
     self.maxCol = math.floor(totalCols + 1)
-
 
     --Calculate startingPosition
     self.CornerPosition = padCFrame - (padSize * 0.5) + (sandSize * 0.5)
@@ -148,7 +149,7 @@ function BeachClass:Setup()
     for x = 0, totalRows do
         for z = 0, totalCols do
             --Construct position
-            local position = self.CornerPosition + Vector3.new(x * 3, 0 , z * 3)
+            local position = self.CornerPosition + Vector3.new(x * 4, 0 , z * 4)
             local mapPosition = Vector3.new(x + 1, 1, z + 1)
 
             self:SetBlockAtPosition(mapPosition, SandClass.new(self.MetaData.Sand[1], position, mapPosition, self.Container))
