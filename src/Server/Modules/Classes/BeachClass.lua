@@ -37,7 +37,7 @@ function BeachClass.new(beachId, beachContainer)
 
         MetaData = MetaDataService:GetMetaData(beachId);
 
-        SandMap = {};
+        BlockMap = {};
     }, BeachClass)
 
     return self
@@ -57,7 +57,7 @@ function BeachClass:FarmBlock(targetBlockPosition)
     currentBlock.Sand:Destroy()
 
     --Mark position as Collected
-    self.SandMap[targetBlockPosition.Y][targetBlockPosition.X][targetBlockPosition.Z] = "Collected"
+    self.BlockMap[targetBlockPosition.Y][targetBlockPosition.X][targetBlockPosition.Z] = "Collected"
 
     --//dear god help me find a cleaner way to do this
     --Calculate adjacentBlock positions
@@ -92,7 +92,7 @@ function BeachClass:SetBlockAtPosition(mapPosition, blockObject)
     --Don't create block if block has already been farmed
     --Insert blockObject into proper position in SandMap
     if ((not positionData) and (positionData ~= "Collected")) then
-        self.SandMap[mapPosition.Y][mapPosition.X][mapPosition.Z] = blockObject
+        self.BlockMap[mapPosition.Y][mapPosition.X][mapPosition.Z] = blockObject
 
         return true
     end
@@ -117,33 +117,33 @@ function BeachClass:GetBlockAtPosition(mapPosition)
     )
 
     --Get layerMap, if it doesn't exist, create
-    local layerMap = (self.SandMap[mapPosition.Y] or {})
-    self.SandMap[mapPosition.Y] = layerMap
+    local layerMap = (self.BlockMap[mapPosition.Y] or {})
+    self.BlockMap[mapPosition.Y] = layerMap
 
     --Get rowMap, if it doesn't exist, create
     local rowMap = (layerMap[mapPosition.X] or {})
-    self.SandMap[mapPosition.Y][mapPosition.X] = rowMap
+    self.BlockMap[mapPosition.Y][mapPosition.X] = rowMap
 
-    return self.SandMap[mapPosition.Y][mapPosition.X][mapPosition.Z]
+    return self.BlockMap[mapPosition.Y][mapPosition.X][mapPosition.Z]
 end
 
 
 --//Generates the initial layer of sand for the beach
 function BeachClass:Setup()
     --Calculate sizes, cframes and rows / columns
-    local sandSize = Vector3.new(4, 4, 4)
+    local blockSize = Vector3.new(4, 4, 4)
 
     local padSize = self.SpawnPad.Size
     local padCFrame = self.SpawnPad.CFrame
 
-    local totalRows = (padSize.X - (sandSize.X * 0.5)) / 4
-    local totalCols = (padSize.Z - (sandSize.Z * 0.5)) / 4
+    local totalRows = (padSize.X - (blockSize.X * 0.5)) / 4
+    local totalCols = (padSize.Z - (blockSize.Z * 0.5)) / 4
 
     self.maxRow = math.floor(totalRows + 1)
     self.maxCol = math.floor(totalCols + 1)
 
     --Calculate startingPosition
-    self.CornerPosition = padCFrame - (padSize * 0.5) + (sandSize * 0.5)
+    self.CornerPosition = padCFrame - (padSize * 0.5) + (blockSize * 0.5)
 
     --Iterate through all rows and cols
     for x = 0, totalRows do
