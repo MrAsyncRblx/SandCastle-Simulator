@@ -50,7 +50,7 @@ end
 function BlockClass:CreateSand()
 
     --Clone sandBlock from Resources
-    self.Block = resources.Sand:FindFirstChild(self.Id):Clone()
+    self.Block = resources.Blocks:FindFirstChild(self.Id):Clone()
     self.Block.Parent = self.ParentBeach.Blocks
     self.Block:SetPrimaryPartCFrame(self.CFrame)
 
