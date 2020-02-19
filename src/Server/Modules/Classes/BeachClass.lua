@@ -170,7 +170,7 @@ function BeachClass:Init()
     --//Controllers
     
     --//Classes
-    BlockClass = self.Modules.Classes.BlockCLass
+    BlockClass = self.Modules.Classes.BlockClass
     
     --//Data
     

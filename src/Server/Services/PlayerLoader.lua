@@ -38,16 +38,16 @@ function PlayerLoader:Start()
 
         local cashValue = Instance.new("NumberValue")
         cashValue.Name = "Cash"
-        cashValue.Value = playerObject.Cash:Get(playerObject.DefaultData.Cash)
+        cashValue.Value = playerObject:Get("Cash")
         cashValue.Parent = leaderstats
 
-        playerObject.Cash:OnUpdate(function(newValue)
+        playerObject:OnUpdate("Cash", function(newValue)
             cashValue.Value = newValue
         end)
 
         local sandValue = Instance.new("NumberValue")
         sandValue.Name = "Sand"
-        sandValue.Value = playerObject.Sand:Get(playerObject.DefaultData.Sand)
+        sandValue.Value = playerObject:Get("Sand")
         sandValue.Parent = leaderstats
 
     end)

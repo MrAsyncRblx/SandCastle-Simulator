@@ -78,4 +78,4 @@ function BlockClass:Init()
 end
 
 
-return SandClass
+return BlockClass

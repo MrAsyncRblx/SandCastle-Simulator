@@ -22,6 +22,8 @@ local TableUtils
 
 --//Locals
 local PlayerData
+local constant = 100
+local experienceScale = 10
 
 
 --//Constructor
@@ -29,6 +31,7 @@ function PlayerClass.new(topPlayer)
 	local self = setmetatable({
 
 		Player = topPlayer;
+		Data = {}
 
 	}, PlayerClass)
 
@@ -37,10 +40,64 @@ function PlayerClass.new(topPlayer)
 
 	--Add DataStore for each DataNode to self
 	for key, defaultValue in pairs(PlayerData.MetaData) do
-		self[key] = DataStore2(key, topPlayer)
+		self.Data[key] = DataStore2(key, topPlayer)
 	end
 
 	return self
+end
+
+--[[
+
+	Data Mutation
+
+]]
+--//Returns data but passes defaultValue
+function PlayerClass:Get(key)
+	return self.Data[key]:Get(PlayerData[key])
+end
+
+
+function PlayerClass:Set(key, value)
+	return self.Data[key]:Set(value)
+end
+
+
+--//Returns the callback of OnUpdate
+function PlayerClass:OnUpdate(key, callback)
+	return self.Data[key]:OnUpdate(callback)
+end
+
+
+--[[
+
+	Level and Exp
+
+]]
+function PlayerClass:AddExp(amount)
+	local currentExperience = self:Get("Exp")
+	local Level = self:Get("Level")
+
+	if (currentExperience+amount) > EF(Level) then
+        --Step 0: Since we overflowed calculate the exp leftover
+        local LeftOverExp = (currentExperience+amount)-EF(Level)
+        --Step 1: increment the level
+        Level = Level + 1
+        --Step 2: Since we overflowed, set the exp to 0 and recurse
+        currentExperience = 0
+        self:AddExp(LeftOverExp)
+    elseif (currentExperience+amount) == EF(Level) then
+        --Step 1: increment the level
+        Level = Level + 1
+        --Step 2: reset experience
+        currentExperience = 0
+    else
+        currentExperience = currentExperience + amount
+   end
+end
+
+
+function EF(level)
+	return constant + (level * experienceScale)
 end
 
 
@@ -50,7 +107,6 @@ function PlayerClass:Start()
 	for key, defaultValue in pairs(PlayerData.MetaData) do
 		DataStore2.Combine("PlayerData", key)
 	end
-
 end
 
 
