@@ -4,8 +4,8 @@
 
 
 
-local SandClass = {}
-SandClass.__index = SandClass
+local BlockClass = {}
+BlockClass.__index = BlockClass
 
 
 --[[
@@ -30,15 +30,15 @@ local resources
 
 
 --//Constructor
-function SandClass.new(sandId, worldPosition, mapPosition, beachContainer)
+function BlockClass.new(blockId, worldPosition, mapPosition, beachContainer)
     local self = setmetatable({
-        Id = sandId,
+        Id = blockId,
 
         CFrame = worldPosition,
         MapPosition = mapPosition,
         
         ParentBeach = beachContainer
-    }, SandClass)
+    }, BlockClass)
 
     self:CreateSand()
 
@@ -47,22 +47,22 @@ end
 
 
 --//Creates the physical sandBlock 
-function SandClass:CreateSand()
+function BlockClass:CreateSand()
 
     --Clone sandBlock from Resources
-    self.Sand = resources.Sand:FindFirstChild(self.Id):Clone()
-    self.Sand.Parent = self.ParentBeach.Sand
-    self.Sand:SetPrimaryPartCFrame(self.CFrame)
+    self.Block = resources.Sand:FindFirstChild(self.Id):Clone()
+    self.Block.Parent = self.ParentBeach.Blocks
+    self.Block:SetPrimaryPartCFrame(self.CFrame)
 
     local mapPositionValue = Instance.new("Vector3Value")
     mapPositionValue.Name = "MapPosition"
     mapPositionValue.Value = self.MapPosition
-    mapPositionValue.Parent = self.Sand
+    mapPositionValue.Parent = self.Block
 
 end
 
 
-function SandClass:Init()
+function BlockClass:Init()
     --//Services
     MetaDataService = self.Services.MetaDataService
     

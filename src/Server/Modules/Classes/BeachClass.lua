@@ -20,7 +20,7 @@ local MetaDataService
 --//Controllers
 
 --//Classes
-local SandClass
+local BlockClass
 
 --//Data
 
@@ -54,7 +54,7 @@ end
 function BeachClass:FarmBlock(targetBlockPosition)
     --Wipe targetBlock like thanos
     local currentBlock = self:GetBlockAtPosition(targetBlockPosition)
-    currentBlock.Sand:Destroy()
+    currentBlock.Block:Destroy()
 
     --Mark position as Collected
     self.BlockMap[targetBlockPosition.Y][targetBlockPosition.X][targetBlockPosition.Z] = "Collected"
@@ -77,7 +77,7 @@ function BeachClass:FarmBlock(targetBlockPosition)
             local worldPosition = self.CornerPosition + Vector3.new((mapPosition.X - 1) * 4, (mapPosition.Y - 1) * -4, (mapPosition.Z - 1) * 4)
 
             --Construct a new blockObject
-            local newBlock = SandClass.new(self.MetaData.Sand[1], worldPosition, mapPosition, self.Container)
+            local newBlock = BlockClass.new(self.MetaData.Blocks[1], worldPosition, mapPosition, self.Container)
             self:SetBlockAtPosition(mapPosition, newBlock)
         end
     end
@@ -152,7 +152,7 @@ function BeachClass:Setup()
             local position = self.CornerPosition + Vector3.new(x * 4, 0 , z * 4)
             local mapPosition = Vector3.new(x + 1, 1, z + 1)
 
-            self:SetBlockAtPosition(mapPosition, SandClass.new(self.MetaData.Sand[1], position, mapPosition, self.Container))
+            self:SetBlockAtPosition(mapPosition, BlockClass.new(self.MetaData.Blocks[1], position, mapPosition, self.Container))
         end
     end
 end
@@ -170,7 +170,7 @@ function BeachClass:Init()
     --//Controllers
     
     --//Classes
-    SandClass = self.Modules.Classes.SandClass
+    BlockClass = self.Modules.Classes.BlockCLass
     
     --//Data
     
