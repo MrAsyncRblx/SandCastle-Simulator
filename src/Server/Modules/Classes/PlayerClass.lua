@@ -3,6 +3,12 @@
 -- February 12, 2020
 
 
+--[[
+
+	Objects contain methods for setting and getting various data, nodes and mechanics
+
+]]
+
 
 local PlayerClass = {}
 PlayerClass.__index = PlayerClass
