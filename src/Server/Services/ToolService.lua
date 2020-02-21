@@ -13,7 +13,7 @@
 local ToolService = {Client = {}}
 
 --//Services
-local beachService
+local BeachService
 
 --//Controllers
 
@@ -24,13 +24,15 @@ local beachService
 --//Locals
 
 
-function ToolService.Client:FarmSand(player, sandPart)
-    assert(sandPart:IsDescendantOf(workspace.Beaches), "Invalid sand part")
+--//Handles incoming request for blockFarming
+function ToolService.Client:FarmBlock(player, blockPart)
+    assert(blockPart:IsDescendantOf(workspace.Beaches), "Invalid block part")
 
-    local sandModel = sandPart.Parent
-    local beachContainer = sandModel.Parent.Parent
-    local beachObject = beachService:GetBeachObjectFromContainer(beachContainer)
-    beachObject:FarmBlock(sandModel.MapPosition.Value)
+    --Too jank fix this ASAP
+    local blockModel = blockPart.Parent
+    local beachContainer = blockModel.Parent.Parent
+    local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
+    beachObject:FarmBlock(blockModel.MapPosition.Value)
 end
 
 
@@ -41,7 +43,7 @@ end
 
 function ToolService:Init()
     --//Services
-    beachService = self.Services.BeachService
+    BeachService = self.Services.BeachService
     
     --//Controllers
     

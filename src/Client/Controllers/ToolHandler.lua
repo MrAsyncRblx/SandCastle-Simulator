@@ -16,9 +16,10 @@
 local ToolHandler = {}
 
 --//Services
-local runService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
-local toolService
+local ToolService
 
 --//Controllers
 
@@ -38,54 +39,57 @@ local toolRange = 25;
 
 
 --Method finds target sand, checks debounce and calls server method
-function ToolHandler:FarmSand()
+function ToolHandler:FarmBlock()
     local target = mouse.Target
 
     --Validate is target is a valid SandBlock
-    if ((target) and (target:IsDescendantOf(workspace.Beaches))) then
-        --Call server to farmSand
-        toolService:FarmSand(target)
+    if ((target) and (target:IsDescendantOf(workspace.Beaches)) and (((character.PrimaryPart.Position - target.Position).magnitude <= toolRange))) then
+        --Call server to farmBlock
+        ToolService:FarmBlock(target)
     end
 end
 
 
 --Opens various connections to allow user to farm 
 function ToolHandler:BindCharacter()
-    --Open connection to allow user to farm sand
+    --Open connection to allow user to farm block
     character.ChildAdded:Connect(function(newChild)
         if (newChild:IsA("Tool")) then
 
-            --When tool is activated, call method to farmSand
-            activationConnection = newChild.Activated:Connect(function()
-                self:FarmSand()
-            end)
-
             --Move selectionBox
-            adorneeConnection = runService.RenderStepped:Connect(function()
+            adorneeConnection = RunService.RenderStepped:Connect(function()
+                local isClicking = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+                local isTouching = false
+
                 local mouseTarget = mouse.Target
 
-                --If mouseTarget exists
-                if (mouseTarget) then
-
-                    --If mouseTarget isADescendantOf
-                    if (mouseTarget:IsDescendantOf(workspace.Beaches)) then
-                        if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
-                            selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
-                            selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
-                        else
-                            selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
-                            selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
-                        end
-
-
-                        --Only update if block has changed
-                        if (mouseTarget ~= lastTarget) then
-                            lastTarget = mouseTarget
-
-                            selectionBox.Adornee = mouseTarget
-                        end
+                --SelectionBox Adornee
+                if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
+                    if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
+                        selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
+                        selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
                     else
-                        selectionBox.Adornee = nil
+                        selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
+                        selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
+                    end
+
+
+                    --Only update if block has changed
+                    if (mouseTarget ~= lastTarget) then
+                        lastTarget = mouseTarget
+
+                        selectionBox.Adornee = mouseTarget
+                    end
+                else
+                    selectionBox.Adornee = nil
+                end
+
+                --Click detection
+                if ((isClicking) and (UserInputService.MouseEnabled) or (isTouching and UserInputService.TouchEnabled)) then
+
+                    --If mouseTarget exists
+                    if (mouseTarget) then
+                        self:FarmBlock(mouseTarget)
                     end
                 end
             end)
@@ -131,7 +135,7 @@ end
 
 function ToolHandler:Init()
     --//Services
-    toolService = self.Services.ToolService
+    ToolService = self.Services.ToolService
     
     --//Controllers
     
