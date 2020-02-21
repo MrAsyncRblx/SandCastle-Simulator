@@ -33,7 +33,6 @@ local character
 local lastTarget
 local selectionBox
 local adorneeConnection
-local activationConnection
 
 local toolRange = 25;
 
@@ -44,8 +43,13 @@ function ToolHandler:FarmBlock()
 
     --Validate is target is a valid SandBlock
     if ((target) and (target:IsDescendantOf(workspace.Beaches)) and (((character.PrimaryPart.Position - target.Position).magnitude <= toolRange))) then
-        --Call server to farmBlock
-        ToolService:FarmBlock(target)
+        --Get blockModel and beachContainer
+        local blockModel = target:FindFirstAncestorOfClass("Model")
+        local beachContainer = blockModel:FindFirstAncestorOfClass("Folder").Parent
+
+        if(blockModel and beachContainer) then
+            ToolService:FarmBlock(beachContainer, blockModel)
+        end
     end
 end
 
@@ -57,14 +61,16 @@ function ToolHandler:BindCharacter()
         if (newChild:IsA("Tool")) then
 
             --Move selectionBox
+            --//TODO Add mobile and console compatibility
             adorneeConnection = RunService.RenderStepped:Connect(function()
                 local isClicking = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-                local isTouching = false
+            --    local isTouching = false
 
                 local mouseTarget = mouse.Target
 
                 --SelectionBox Adornee
                 if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
+                    --Change selectionBox lineColor
                     if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
                         selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
                         selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
@@ -86,7 +92,6 @@ function ToolHandler:BindCharacter()
 
                 --Click detection
                 if ((isClicking) and (UserInputService.MouseEnabled) or (isTouching and UserInputService.TouchEnabled)) then
-
                     --If mouseTarget exists
                     if (mouseTarget) then
                         self:FarmBlock(mouseTarget)

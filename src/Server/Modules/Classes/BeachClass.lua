@@ -110,7 +110,7 @@ function BeachClass:CreateBlock(targetPosition)
 
     --Iterate through all depthHashes
     for depthClamp, blockHash in pairs(self.MetaData.Blocks) do
-        --No no no no no
+        --Don't index default hashMap
         if (depthClamp == "Default") then
             continue
         end

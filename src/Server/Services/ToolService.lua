@@ -25,12 +25,9 @@ local BeachService
 
 
 --//Handles incoming request for blockFarming
-function ToolService.Client:FarmBlock(player, blockPart)
-    assert(blockPart:IsDescendantOf(workspace.Beaches), "Invalid block part")
-
-    --Too jank fix this ASAP
-    local blockModel = blockPart.Parent
-    local beachContainer = blockModel.Parent.Parent
+function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
+    assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
+    
     local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
     beachObject:FarmBlock(blockModel.MapPosition.Value)
 end
