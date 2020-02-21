@@ -46,8 +46,6 @@ function BeachClass.new(beachId, beachContainer)
 end
 
 
-
-
 --[[
 
     Mutators
