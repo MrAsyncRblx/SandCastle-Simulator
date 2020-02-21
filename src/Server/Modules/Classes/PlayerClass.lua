@@ -102,6 +102,7 @@ function PlayerClass:AddExp(amount)
 end
 
 
+--Calculates the required exp for the next level
 function EF(level)
 	return constant + (level * experienceScale)
 end
