@@ -41,10 +41,10 @@ local toolRange = 25;
 function ToolHandler:FarmSand()
     local target = mouse.Target
 
+    --Validate is target is a valid SandBlock
     if ((target) and (target:IsDescendantOf(workspace.Beaches))) then
-
+        --Call server to farmSand
         toolService:FarmSand(target)
-
     end
 end
 
