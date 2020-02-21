@@ -18,6 +18,7 @@ BeachClass.__index = BeachClass
 local MetaDataService
 
 --//Controllers
+local ChanceController
 
 --//Classes
 local BlockClass
@@ -25,6 +26,7 @@ local BlockClass
 --//Data
 
 --//Locals
+local blockSize
 
 
 --//Constructor
@@ -42,6 +44,8 @@ function BeachClass.new(beachId, beachContainer)
 
     return self
 end
+
+
 
 
 --[[
@@ -74,10 +78,10 @@ function BeachClass:FarmBlock(targetBlockPosition)
         --Don't overwrite another blockObject, only spawn block onTop of targetBlock if it's underneath the surface
         if (not self:GetBlockAtPosition(mapPosition) and self:GetBlockAtPosition(mapPosition) ~= "Collected") then
             --Calculate the worldPosition
-            local worldPosition = self.CornerPosition + Vector3.new((mapPosition.X - 1) * 4, (mapPosition.Y - 1) * -4, (mapPosition.Z - 1) * 4)
+            local worldPosition = self.CornerPosition + Vector3.new((mapPosition.X - 1) * blockSize.X, (mapPosition.Y - 1) * -blockSize.Y, (mapPosition.Z - 1) * blockSize.Z)
 
             --Construct a new blockObject
-            local newBlock = BlockClass.new(self.MetaData.Blocks[1], worldPosition, mapPosition, self.Container)
+            local newBlock = BlockClass.new(self:CreateBlock(mapPosition), worldPosition, mapPosition, self.Container)
             self:SetBlockAtPosition(mapPosition, newBlock)
         end
     end
@@ -98,6 +102,39 @@ function BeachClass:SetBlockAtPosition(mapPosition, blockObject)
     end
 
     return false
+end
+
+
+--//Get depthHash according to targetPosition
+--//Call ChanceController:ChooseBlock() to pick a random blockId
+function BeachClass:CreateBlock(targetPosition)
+    local depthHash
+
+    --Iterate through all depthHashes
+    for depthClamp, blockHash in pairs(self.MetaData.Blocks) do
+        --No no no no no
+        if (depthClamp == "Default") then
+            continue
+        end
+        
+        --Split depthClamp string
+        depthClamp = string.split(depthClamp, ",")
+        
+        --If current height is between depthClamp, return
+        if ((targetPosition.Y >= tonumber(depthClamp[1])) and (targetPosition.Y <= tonumber(depthClamp[2]))) then
+            depthHash = blockHash
+
+            break
+        end
+    end
+
+    --If there's no depthHash available, use the default
+    if (not depthHash) then
+        depthHash = self.MetaData.Blocks["Default"]
+    end
+
+    --Call ChooseBlock to pick a weighted BlockId
+    return ChanceController:ChooseBlock(depthHash)
 end
 
 
@@ -131,28 +168,26 @@ end
 --//Generates the initial layer of sand for the beach
 function BeachClass:Setup()
     --Calculate sizes, cframes and rows / columns
-    local blockSize = Vector3.new(4, 4, 4)
-
     local padSize = self.SpawnPad.Size
     local padCFrame = self.SpawnPad.CFrame
 
-    local totalRows = (padSize.X - (blockSize.X * 0.5)) / 4
-    local totalCols = (padSize.Z - (blockSize.Z * 0.5)) / 4
+    local totalRows = (padSize.X - (blockSize.X * 0.5)) * 0.25
+    local totalCols = (padSize.Z - (blockSize.Z * 0.5)) * 0.25
 
     self.maxRow = math.floor(totalRows + 1)
     self.maxCol = math.floor(totalCols + 1)
 
     --Calculate startingPosition
-    self.CornerPosition = padCFrame - (padSize * 0.5) + (blockSize * 0.5)
+    self.CornerPosition = padCFrame - (padSize * 0.5) + Vector3.new(blockSize.X / 2, padSize.Y - (blockSize.Y / 2), blockSize.Z / 2)
 
     --Iterate through all rows and cols
     for x = 0, totalRows do
         for z = 0, totalCols do
             --Construct position
-            local position = self.CornerPosition + Vector3.new(x * 4, 0 , z * 4)
+            local position = self.CornerPosition + Vector3.new(x * blockSize.X, 0 , z * blockSize.Z)
             local mapPosition = Vector3.new(x + 1, 1, z + 1)
 
-            self:SetBlockAtPosition(mapPosition, BlockClass.new(self.MetaData.Blocks[1], position, mapPosition, self.Container))
+            self:SetBlockAtPosition(mapPosition, BlockClass.new(self:CreateBlock(position), position, mapPosition, self.Container))
         end
     end
 end
@@ -168,6 +203,7 @@ function BeachClass:Init()
     MetaDataService = self.Services.MetaDataService
     
     --//Controllers
+    ChanceController = self.Modules.Controllers.Chance
     
     --//Classes
     BlockClass = self.Modules.Classes.BlockClass
@@ -175,6 +211,7 @@ function BeachClass:Init()
     --//Data
     
     --//Locals
+    blockSize = Vector3.new(4, 4, 4)
     
 end
 

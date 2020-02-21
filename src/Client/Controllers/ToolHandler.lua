@@ -34,6 +34,8 @@ local selectionBox
 local adorneeConnection
 local activationConnection
 
+local toolRange = 25;
+
 
 --Method finds target sand, checks debounce and calls server method
 function ToolHandler:FarmSand()
@@ -62,10 +64,21 @@ function ToolHandler:BindCharacter()
             adorneeConnection = runService.RenderStepped:Connect(function()
                 local mouseTarget = mouse.Target
 
+                --If mouseTarget exists
                 if (mouseTarget) then
 
+                    --If mouseTarget isADescendantOf
                     if (mouseTarget:IsDescendantOf(workspace.Beaches)) then
+                        if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
+                            selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
+                            selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
+                        else
+                            selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
+                            selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
+                        end
 
+
+                        --Only update if block has changed
                         if (mouseTarget ~= lastTarget) then
                             lastTarget = mouseTarget
 
