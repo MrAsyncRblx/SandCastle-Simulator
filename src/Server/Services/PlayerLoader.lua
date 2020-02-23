@@ -19,6 +19,7 @@ self = PlayerLoader
 
 --//Classes
 local PlayerClass
+local ToolClass
 
 --//Data
 
@@ -30,6 +31,7 @@ function PlayerLoader:Start()
 
         --Construct a new PlayerObject
         local playerObject = PlayerClass.new(newPlayer)
+        playerObject.Tool = ToolClass.new(playerObject)
 
         --Leaderstats
         local leaderstats = Instance.new("Folder")
@@ -66,8 +68,9 @@ function PlayerLoader:Init()
 
     --//Classes
     PlayerClass = self.Modules.Classes.PlayerClass
+    ToolClass = self.Modules.Classes.ToolClass
 
-    --//Data	
+    --//Data
 
 end
 
