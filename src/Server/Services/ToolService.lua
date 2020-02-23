@@ -27,6 +27,10 @@ local BeachService
 --//Handles incoming request for blockFarming
 function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
     assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
+
+
+    
+
     
     local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
     beachObject:FarmBlock(blockModel.MapPosition.Value)
