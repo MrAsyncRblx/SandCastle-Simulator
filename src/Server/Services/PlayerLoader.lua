@@ -31,7 +31,7 @@ function PlayerLoader:Start()
 
         --Construct a new PlayerObject
         local playerObject = PlayerClass.new(newPlayer)
-        playerObject.Tool = ToolClass.new(playerObject)
+        local toolObject = ToolClass.new(playerObject)
 
         --Leaderstats
         local leaderstats = Instance.new("Folder")

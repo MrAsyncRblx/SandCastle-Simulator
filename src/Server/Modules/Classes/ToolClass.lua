@@ -30,10 +30,8 @@ function ToolClass.new(playerObject)
         Id = playerObject:Get("EquippedTool")
     }, ToolClass)
 
-    print( playerObject:Get("EquippedTool"))
-
     local newTool = serverStorage.Resources.Tools:FindFirstChild(self.Id):Clone()
-    newTool.Parent = (playerObject.Player.Character or playerObject.Player.CharacterAdded:Wait()).Backpack
+    newTool.Parent = playerObject.Player.Backpack
 
     return self
 end

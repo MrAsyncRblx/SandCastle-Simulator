@@ -59,7 +59,7 @@ end
 ]]
 --//Returns data but passes defaultValue
 function PlayerClass:Get(key)
-	return self.Data[key]:Get(PlayerData[key])
+	return self.Data[key]:Get(PlayerData.MetaData[key])
 end
 
 
