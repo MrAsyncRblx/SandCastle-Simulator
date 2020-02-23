@@ -13,6 +13,8 @@
 local ToolService = {Client = {}}
 
 --//Services
+local PlayerLoaderService
+local MetaDataService
 local BeachService
 
 --//Controllers
@@ -28,7 +30,10 @@ local BeachService
 function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
     assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
 
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
+    local toolId = playerObject:Get("EquippedTool")
 
+    local toolMetaData = MetaDataService:GetMetaData(toolId)
     
 
     
@@ -44,6 +49,8 @@ end
 
 function ToolService:Init()
     --//Services
+    PlayerLoaderService = self.Services.PlayerLoader
+    MetaDataService = self.Services.MetaDataService
     BeachService = self.Services.BeachService
     
     --//Controllers

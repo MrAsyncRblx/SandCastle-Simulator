@@ -21,7 +21,8 @@ self = PlayerLoader
 local PlayerClass
 local ToolClass
 
---//Data
+--//Locals
+local playerObjectIndex
 
 
 function PlayerLoader:Start()
@@ -52,12 +53,20 @@ function PlayerLoader:Start()
         sandValue.Value = playerObject:Get("Sand")
         sandValue.Parent = leaderstats
 
+        playerObjectIndex[newPlayer] = playerObject
     end)
 
     game.Players.PlayerRemoving:Connect(function(oldPlayer)
         print(oldPlayer.Name .. " is leaving " .. game.Name)
 
+        playerObjectIndex[oldPlayer] = nil
     end)
+end
+
+
+--//Returns the playerObject of the given player
+function PlayerLoader:GetPlayerObject(player)
+    return playerObjectIndex[player]
 end
 
 
@@ -70,7 +79,8 @@ function PlayerLoader:Init()
     PlayerClass = self.Modules.Classes.PlayerClass
     ToolClass = self.Modules.Classes.ToolClass
 
-    --//Data
+    --//Locals
+    playerObjectIndex = {}
 
 end
 
