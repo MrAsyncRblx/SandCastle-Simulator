@@ -35,15 +35,8 @@ function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
 
     local toolMetaData = MetaDataService:GetMetaData(toolId)
     
-
-    
     local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
     beachObject:FarmBlock(blockModel.MapPosition.Value)
-end
-
-
-function ToolService:Start()
-
 end
 
 

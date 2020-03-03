@@ -23,6 +23,7 @@ local serverStorage = game:GetService("ServerStorage")
 --//Locals
 
 
+--//Constructor
 function ToolClass.new(playerObject)
     local self = setmetatable({
         Player = playerObject.Player,
@@ -30,17 +31,45 @@ function ToolClass.new(playerObject)
         Id = playerObject:Get("EquippedTool")
     }, ToolClass)
 
-    local newTool = serverStorage.Resources.Tools:FindFirstChild(self.Id):Clone()
-    newTool.Parent = playerObject.Player.Backpack
+
+    --Clone new tool to PlayersBackpack
+    self.Object = self:CloneTool(playerObject)
+
+    --Re-Clone a new tool everytime the players Character is re-created
+    playerObject.Player.CharacterAdded:Connect(function(newCharacter)
+        self:CloneTool(playerObject)
+    end)
 
     return self
 end
 
 
+--Clones a new tool into the players Character, equipping it instantly
+function ToolClass:CloneTool(playerObject)
+    local toolClone = serverStorage.Resources.Tools:FindFirstChild(self.Id):Clone()
+    toolClone.Parent = (playerObject.Player.Character or playerObject.Player.CharacterAdded:Wait())
+
+    return toolClone
+end
+
+
+--//Changes the players currentTool to a newOne
 function ToolClass:ChangeTool(playerObject, newId)
     playerObject:Set("EquippedTool", newId)
     self.Id = newId
 
+    --Destroy old tool whether it's in backpack or equipped
+    local backpackObject = playerObject.Player.Backpack:FindFirstChildOfClass("Tool")
+    local characterObject = (playerObject.Player.Character or playerObject.Player.CharacterAdded:Wait()).Backpack:FindFirstChildOfClass("Tool")
+
+    if (backpackObject) then
+        backpackObject:Destroy()
+    elseif (characterObject) then
+        characterObject:Destroy()
+    end
+
+    --Finally, clone the new tool into the players backpack
+    self.Object = self:CloneTool(playerObject)
 end
 
 

@@ -83,15 +83,15 @@ function PlayerClass:AddExp(amount)
 	local currentExperience = self:Get("Exp")
 	local Level = self:Get("Level")
 
-	if (currentExperience+amount) > EF(Level) then
+	if (currentExperience+amount) > getNextLevelExp(Level) then
         --Step 0: Since we overflowed calculate the exp leftover
-        local LeftOverExp = (currentExperience+amount)-EF(Level)
+        local LeftOverExp = (currentExperience+amount) - getNextLevelExp(Level)
         --Step 1: increment the level
         Level = Level + 1
         --Step 2: Since we overflowed, set the exp to 0 and recurse
         currentExperience = 0
         self:AddExp(LeftOverExp)
-    elseif (currentExperience+amount) == EF(Level) then
+    elseif (currentExperience+amount) == getNextLevelExp(Level) then
         --Step 1: increment the level
         Level = Level + 1
         --Step 2: reset experience
@@ -103,7 +103,7 @@ end
 
 
 --Calculates the required exp for the next level
-function EF(level)
+function getNextLevelExp(level)
 	return constant + (level * experienceScale)
 end
 

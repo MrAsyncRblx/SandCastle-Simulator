@@ -8,6 +8,7 @@
 
     Opens various connections to allow user to farm sand
     Communicates to server
+    Handles client animations
 
 ]]
 

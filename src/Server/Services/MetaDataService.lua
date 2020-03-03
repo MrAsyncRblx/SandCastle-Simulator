@@ -37,6 +37,11 @@ function MetaDataService:GetMetaData(itemId)
     for _, dataNode in pairs(DataNodes) do
         local MetaData = dataNode.MetaData
 
+        --Don't throw exception because MetaData does not contain any MetaData
+        if (#MetaData == 0) then
+            continue
+        end
+
         --Get the minimum metaDataId and maximum metaDataId
         local minId = MetaData[1].Id
         local maxId = MetaData[#MetaData].Id
