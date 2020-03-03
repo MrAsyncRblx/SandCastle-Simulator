@@ -2,14 +2,11 @@
 -- MrAsync
 -- February 16, 2020
 
-
 --[[
     
     Handles client-server communication for sand farming
 
 ]]
-
-
 local ToolService = {Client = {}}
 
 --//Services
@@ -25,36 +22,54 @@ local BeachService
 
 --//Locals
 
-
 --//Handles incoming request for blockFarming
+
+function ToolService.Client:CalculateFarmTime(player, beachObject, blockModel)
+    local invokeTime = os.time()
+
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
+
+    return
+end
+
 function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
     assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
 
-    local playerObject = PlayerLoaderService:GetPlayerObject(player)
-    local toolId = playerObject:Get("EquippedTool")
+    --Get playerObject and lastFarmInfo
 
+    --Get tool information
+    local toolId = playerObject:Get("EquippedTool")
     local toolMetaData = MetaDataService:GetMetaData(toolId)
-    
+
+    --Get blockObject and blockMetaData using Function Calls from GetBeachObjectFromContainer
     local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
+    local blockObject = beachObject:GetBlockAtPosition(blockModel.MapPosition.Value)
+    local blockMetaData = MetaDataService:GetMetaData(blockObject.Id)
+
+    --Calculate time, in seconds, the tool needs to farm the block
+    local farmTimeNeeded = blockMetaData.Hardness / toolMetaData.Strength
+    local targetFarmTime = invokeTime + farmTimeNeeded
+
+    while (os.time() < targetFarmTime) do
+        wait()
+    end
+
     beachObject:FarmBlock(blockModel.MapPosition.Value)
 end
-
 
 function ToolService:Init()
     --//Services
     PlayerLoaderService = self.Services.PlayerLoader
     MetaDataService = self.Services.MetaDataService
     BeachService = self.Services.BeachService
-    
-    --//Controllers
-    
-    --//Classes
-    
-    --//Data
-    
-    --//Locals
-    
-end
 
+    --//Controllers
+
+    --//Classes
+
+    --//Data
+
+    --//Locals
+end
 
 return ToolService
