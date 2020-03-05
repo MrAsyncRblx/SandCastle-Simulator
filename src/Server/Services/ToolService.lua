@@ -24,6 +24,33 @@ local BeachService
 
 --//Handles incoming request for blockFarming
 
+function ToolService.Client:ButtonDown(player)
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
+    local invokeTime = os.time()
+
+    if (not playerObject:Get("IsFarming")) then
+        playerObject:Set("IsFarming", true)
+
+        --Start coroutine
+
+        return {
+            true
+        }
+    end
+
+    return false
+end
+
+function ToolService.Client:ButtonUp(player)
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
+
+    if (playerObject:Get("IsFarming")) then
+        playerObject:Set("IsFarming", false)
+
+    --Kill coroutine
+    end
+end
+
 function ToolService.Client:CalculateFarmTime(player, beachObject, blockModel)
     local invokeTime = os.time()
 
@@ -36,6 +63,7 @@ function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
     assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
 
     --Get playerObject and lastFarmInfo
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
 
     --Get tool information
     local toolId = playerObject:Get("EquippedTool")
