@@ -26,6 +26,14 @@ local MetaDataContainer
 local DataNodes
 local PlayerData
 
+
+function MetaDataService.Client:GetMetaData(player, itemId)
+    print(player.Name .. " requesting MetaData for item: " .. itemId);
+
+    return self.Server:GetMetaData(itemId)
+end
+
+
 --//Retrives MetaData bound to passed itemId
 --//Returns Array if find is successful
 --//Returns 0 if Array is not found

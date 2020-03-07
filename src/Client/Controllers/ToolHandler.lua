@@ -2,8 +2,6 @@
 -- MrAsync
 -- February 16, 2020
 
-
-
 --[[
 
     Opens various connections to allow user to farm sand
@@ -11,16 +9,15 @@
     Handles client animations
 
 ]]
-
-
-
 local ToolHandler = {}
 
 --//Services
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
+local MetaDataService
 local ToolService
+local PlayerGui
 
 --//Controllers
 
@@ -32,94 +29,115 @@ local ToolService
 local mouse
 local character
 local lastTarget
+local miningHudGui
 local selectionBox
 local adorneeConnection
 
-local toolRange = 25;
-
+local toolRange = 25
 
 --Method finds target sand, checks debounce and calls server method
 function ToolHandler:FarmBlock()
     local target = mouse.Target
 
     --Validate is target is a valid SandBlock
-    if ((target) and (target:IsDescendantOf(workspace.Beaches)) and (((character.PrimaryPart.Position - target.Position).magnitude <= toolRange))) then
+    if
+        ((target) and (target:IsDescendantOf(workspace.Beaches)) and
+            ((character.PrimaryPart.Position - target.Position).magnitude <= toolRange))
+     then
         --Get blockModel and beachContainer
         local blockModel = target:FindFirstAncestorOfClass("Model")
         local beachContainer = blockModel:FindFirstAncestorOfClass("Folder").Parent
 
-        if(blockModel and beachContainer) then
+        if (blockModel and beachContainer) then
             ToolService:FarmBlock(beachContainer, blockModel)
         end
     end
 end
 
-
---Opens various connections to allow user to farm 
+--Opens various connections to allow user to farm
 function ToolHandler:BindCharacter()
     --Open connection to allow user to farm block
-    character.ChildAdded:Connect(function(newChild)
-        if (newChild:IsA("Tool")) then
+    character.ChildAdded:Connect(
+        function(newChild)
+            if (newChild:IsA("Tool")) then
+                --Move selectionBox
+                --//TODO Add mobile and console compatibility
+                adorneeConnection =
+                    RunService.RenderStepped:Connect(
+                    function()
+                        local isClicking = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+                        --    local isTouching = false
 
-            --Move selectionBox
-            --//TODO Add mobile and console compatibility
-            adorneeConnection = RunService.RenderStepped:Connect(function()
-                local isClicking = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-            --    local isTouching = false
+                        local mouseTarget = mouse.Target
 
-                local mouseTarget = mouse.Target
+                        --SelectionBox Adornee
+                        if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
+                            local blockId = tonumber(mouseTarget:FindFirstAncestorOfClass("Model").Name)
 
-                --SelectionBox Adornee
-                if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
-                    --Change selectionBox lineColor
-                    if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
-                        selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
-                        selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
-                    else
-                        selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
-                        selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
+                            --Change selectionBox lineColor
+                            if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
+                                selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
+                                selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
+                            else
+                                selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
+                                selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
+                            end
+
+                            --Only update if block has changed
+                            if (mouseTarget ~= lastTarget) then
+                                local blockMetaData = MetaDataService:GetMetaData(blockId)
+
+                                lastTarget = mouseTarget
+                                selectionBox.Adornee = mouseTarget
+
+                                --Edit HUD Text
+                                miningHudGui.Container.BlockName.Text = blockMetaData.Name
+
+                                --Show HUD
+                                if (not miningHudGui.Container.Visible) then
+                                    miningHudGui.Container.Visible = true
+                                end
+                            end
+                        else
+                            selectionBox.Adornee = nil
+                            miningHudGui.Container.Visible = false
+                        end
+
+                        --Click detection
+                        if
+                            ((isClicking) and (UserInputService.MouseEnabled) or
+                                (isTouching and UserInputService.TouchEnabled))
+                         then
+                            --If mouseTarget exists
+                            if (mouseTarget) then
+                                self:FarmBlock(mouseTarget)
+                            end
+                        end
                     end
-
-
-                    --Only update if block has changed
-                    if (mouseTarget ~= lastTarget) then
-                        lastTarget = mouseTarget
-
-                        selectionBox.Adornee = mouseTarget
-                    end
-                else
-                    selectionBox.Adornee = nil
-                end
-
-                --Click detection
-                if ((isClicking) and (UserInputService.MouseEnabled) or (isTouching and UserInputService.TouchEnabled)) then
-                    --If mouseTarget exists
-                    if (mouseTarget) then
-                        self:FarmBlock(mouseTarget)
-                    end
-                end
-            end)
+                )
+            end
         end
-    end)
+    )
 
     --Close open connections when tool is removed
-    character.ChildRemoved:Connect(function(oldChild)
-        if (oldChild:IsA("Tool")) then
-            selectionBox.Adornee = nil
+    character.ChildRemoved:Connect(
+        function(oldChild)
+            if (oldChild:IsA("Tool")) then
+                selectionBox.Adornee = nil
 
-            --Close activationConnection
-            if (activationConnection) then
-                activationConnection:Disconnect()
-            end
+                --Close activationConnection
+                if (activationConnection) then
+                    activationConnection:Disconnect()
+                end
 
-            --CLose adorneeConnection
-            if (adorneeConnection) then
-                adorneeConnection:Disconnect()
+                --CLose adorneeConnection
+                if (adorneeConnection) then
+                    adorneeConnection:Disconnect()
+                end
             end
         end
-    end)
+    )
 end
-
 
 function ToolHandler:Start()
     --Initially setup character
@@ -127,31 +145,34 @@ function ToolHandler:Start()
     self:BindCharacter()
 
     --Setup character when player resets character
-    self.Player.CharacterAdded:Connect(function(newCharacter)
-        character = newCharacter
-        
-        self:BindCharacter()
-    end)
+    self.Player.CharacterAdded:Connect(
+        function(newCharacter)
+            character = newCharacter
+
+            self:BindCharacter()
+        end
+    )
 
     --Setup selectionBox
     selectionBox = Instance.new("SelectionBox")
     selectionBox.Parent = workspace.CurrentCamera
 end
 
-
 function ToolHandler:Init()
     --//Services
+    MetaDataService = self.Services.MetaDataService
     ToolService = self.Services.ToolService
-    
+    PlayerGui = self.Player:WaitForChild("PlayerGui")
+
     --//Controllers
-    
+
     --//Classes
-    
+
     --//Data
-    
+
     --//Locals
+    miningHudGui = PlayerGui:WaitForChild("MiningHUD")
     mouse = self.Player:GetMouse()
 end
-
 
 return ToolHandler

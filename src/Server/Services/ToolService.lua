@@ -74,13 +74,13 @@ function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
     local blockObject = beachObject:GetBlockAtPosition(blockModel.MapPosition.Value)
     local blockMetaData = MetaDataService:GetMetaData(blockObject.Id)
 
-    --Calculate time, in seconds, the tool needs to farm the block
-    local farmTimeNeeded = blockMetaData.Hardness / toolMetaData.Strength
-    local targetFarmTime = invokeTime + farmTimeNeeded
+    -- --Calculate time, in seconds, the tool needs to farm the block
+    -- local farmTimeNeeded = blockMetaData.Hardness / toolMetaData.Strength
+    -- local targetFarmTime = invokeTime + farmTimeNeeded
 
-    while (os.time() < targetFarmTime) do
-        wait()
-    end
+    -- while (os.time() < targetFarmTime) do
+    --     wait()
+    -- end
 
     beachObject:FarmBlock(blockModel.MapPosition.Value)
 end
