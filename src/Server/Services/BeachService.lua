@@ -37,6 +37,7 @@ function BeachService:Start()
         beachContainer.SpawnPad:Destroy()
         beachObject:Setup()
         
+        --Add beachObject to beachObjects hash
         beachObjects[beachContainer] = beachObject
     end
 end

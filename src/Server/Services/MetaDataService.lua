@@ -2,7 +2,6 @@
 -- MrAsync
 -- February 14, 2020
 
-
 --[[
 
     Allows server and clients to easily retrieve MetaData
@@ -28,8 +27,6 @@ local PlayerData
 
 
 function MetaDataService.Client:GetMetaData(player, itemId)
-    print(player.Name .. " requesting MetaData for item: " .. itemId);
-
     return self.Server:GetMetaData(itemId)
 end
 
@@ -96,5 +93,21 @@ function MetaDataService:Init()
 
 end
 
+-- --//Unit Test
+-- local NexusUnitTesting = require(game.ServerScriptService:WaitForChild("NexusUnitTesting"))
+-- local UnitTest = NexusUnitTesting.UnitTest.new("MetaDataService")
+
+-- function UnitTest:Setup()
+--     MetaDataService:Init()
+--     MetaDataService:Start()
+-- end
+
+-- function UnitTest:Run()
+--     local metaData = MetaDataService:GetMetaData(100)
+    
+--     self:AssertEquals(type(metaData), "table", "MetaDataService not returning valid MetaData")
+-- end
+
+-- NexusUnitTesting:RegisterUnitTest(UnitTest)
 
 return MetaDataService

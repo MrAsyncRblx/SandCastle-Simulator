@@ -28,9 +28,10 @@ local PlayerGui
 --//Locals
 local mouse
 local character
-local lastTarget
+local lastBlock
 local miningHudGui
 local selectionBox
+local currentBlock
 local adorneeConnection
 
 local toolRange = 25
@@ -55,6 +56,7 @@ end
 function ToolHandler:BindCharacter() 
 
     --Open connection to childAdded
+    --Handles the Block adornee and BlockInfoHUD
     character.ChildAdded:Connect(function(newChild)
 
         --Only continue if child isA tool
@@ -68,7 +70,9 @@ function ToolHandler:BindCharacter()
                     local blockMetaData = MetaDataService:GetMetaData(blockId)
 
                     --SandObject has not already been processed
-                    if (mouseTarget ~= lastTarget) then
+                    if (mouseTarget ~= lastBlock) then
+                        currentBlock = mouseTarget:FindFirstAncestorOfClass("Model")
+
                         --Change selectionBox lineColor
                         if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
                             selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
@@ -79,7 +83,7 @@ function ToolHandler:BindCharacter()
                         end
 
                         --LastTarget and Adornee
-                        lastTarget = mouseTarget
+                        lastBlock = mouseTarget
                         selectionBox.Adornee = mouseTarget
 
                         --Edit HUD Text
@@ -91,6 +95,7 @@ function ToolHandler:BindCharacter()
                         end
                     end
                 else
+                    currentBlock = nil
                     selectionBox.Adornee = nil
                     miningHudGui.Container.Visible = false
                 end
@@ -131,6 +136,17 @@ function ToolHandler:Start()
     --Setup selectionBox
     selectionBox = Instance.new("SelectionBox")
     selectionBox.Parent = workspace.CurrentCamera
+
+    mouse.Button1Down:Connect(function()
+        if (currentBlock) then
+            local blockDestroyed, targetTime = ToolService:StartFarming(currentBlock)
+            print("Block damaged and or destroyed!", blockDestroyed)
+        end
+    end)
+
+    mouse.Button1Up:Connect(function()
+        ToolService:StopFarming()
+    end)
 end
 
 function ToolHandler:Init()

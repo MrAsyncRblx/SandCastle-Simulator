@@ -31,6 +31,8 @@ local resources
 
 --//Constructor
 function BlockClass.new(blockId, worldPosition, mapPosition, beachContainer)
+    local blockMetaData = MetaDataService:GetMetaData(blockId)
+
     local self = setmetatable({
         Id = blockId,
 
@@ -40,14 +42,33 @@ function BlockClass.new(blockId, worldPosition, mapPosition, beachContainer)
         ParentBeach = beachContainer
     }, BlockClass)
 
-    self:CreateSand()
+    --Set hardness attribute
+    self.CurrentHardness = blockMetaData.Hardness
+
+    --Create the physical sandObject
+    self:CreateBlockObject()
 
     return self
 end
 
 
+--//Deals damage to BlockObject
+--//Returns true if BlockHardness is depleted (<= 0)
+--//Returns false if BlockHardness > 0
+function BlockClass:Attack(toolMetaData)
+    if (self.CurrentHardness <= 0) then return false end
+
+    local hardnessAfterAttack = self.CurrentHardness - toolMetaData.Strength
+    if (hardnessAfterAttack <= 0) then
+        return true
+    else
+        return false
+    end
+end
+
+
 --//Creates the physical sandBlock 
-function BlockClass:CreateSand()
+function BlockClass:CreateBlockObject()
 
     --Clone sandBlock from Resources
     self.Block = resources.Blocks:FindFirstChild(self.Id):Clone()
