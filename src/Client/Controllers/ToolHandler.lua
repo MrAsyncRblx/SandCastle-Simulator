@@ -40,10 +40,7 @@ function ToolHandler:FarmBlock()
     local target = mouse.Target
 
     --Validate is target is a valid SandBlock
-    if
-        ((target) and (target:IsDescendantOf(workspace.Beaches)) and
-            ((character.PrimaryPart.Position - target.Position).magnitude <= toolRange))
-     then
+    if ((target) and (target:IsDescendantOf(workspace.Beaches)) and ((character.PrimaryPart.Position - target.Position).magnitude <= toolRange)) then
         --Get blockModel and beachContainer
         local blockModel = target:FindFirstAncestorOfClass("Model")
         local beachContainer = blockModel:FindFirstAncestorOfClass("Folder").Parent
@@ -55,88 +52,68 @@ function ToolHandler:FarmBlock()
 end
 
 --Opens various connections to allow user to farm
-function ToolHandler:BindCharacter()
-    --Open connection to allow user to farm block
-    character.ChildAdded:Connect(
-        function(newChild)
-            if (newChild:IsA("Tool")) then
-                --Move selectionBox
-                --//TODO Add mobile and console compatibility
-                adorneeConnection =
-                    RunService.RenderStepped:Connect(
-                    function()
-                        local isClicking = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-                        --    local isTouching = false
+function ToolHandler:BindCharacter() 
 
-                        local mouseTarget = mouse.Target
+    --Open connection to childAdded
+    character.ChildAdded:Connect(function(newChild)
 
-                        --SelectionBox Adornee
-                        if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
-                            local blockId = tonumber(mouseTarget:FindFirstAncestorOfClass("Model").Name)
+        --Only continue if child isA tool
+        if (newChild:IsA("Tool")) then
+            adorneeConnection = RunService.RenderStepped:Connect(function()
+                local mouseTarget = mouse.Target
 
-                            --Change selectionBox lineColor
-                            if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
-                                selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
-                                selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
-                            else
-                                selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
-                                selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
-                            end
+                --Only continue if mouseTarget exists, mouseTarget is a SandObject
+                if ((mouseTarget) and (mouseTarget:IsDescendantOf(workspace.Beaches))) then
+                    local blockId = tonumber(mouseTarget:FindFirstAncestorOfClass("Model").Name)
+                    local blockMetaData = MetaDataService:GetMetaData(blockId)
 
-                            --Only update if block has changed
-                            if (mouseTarget ~= lastTarget) then
-                                local blockMetaData = MetaDataService:GetMetaData(blockId)
-
-                                lastTarget = mouseTarget
-                                selectionBox.Adornee = mouseTarget
-
-                                --Edit HUD Text
-                                miningHudGui.Container.BlockName.Text = blockMetaData.Name
-
-                                --Show HUD
-                                if (not miningHudGui.Container.Visible) then
-                                    miningHudGui.Container.Visible = true
-                                end
-                            end
+                    --SandObject has not already been processed
+                    if (mouseTarget ~= lastTarget) then
+                        --Change selectionBox lineColor
+                        if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
+                            selectionBox.SurfaceColor3 = Color3.fromRGB(192, 57, 43)
+                            selectionBox.Color3 = Color3.fromRGB(192, 57, 43)
                         else
-                            selectionBox.Adornee = nil
-                            miningHudGui.Container.Visible = false
+                            selectionBox.SurfaceColor3 = Color3.fromRGB(39, 174, 96)
+                            selectionBox.Color3 = Color3.fromRGB(39, 174, 96)
                         end
 
-                        --Click detection
-                        if
-                            ((isClicking) and (UserInputService.MouseEnabled) or
-                                (isTouching and UserInputService.TouchEnabled))
-                         then
-                            --If mouseTarget exists
-                            if (mouseTarget) then
-                                self:FarmBlock(mouseTarget)
-                            end
+                        --LastTarget and Adornee
+                        lastTarget = mouseTarget
+                        selectionBox.Adornee = mouseTarget
+
+                        --Edit HUD Text
+                        miningHudGui.Container.BlockName.Text = blockMetaData.Name
+
+                        --Show HUD
+                        if (not miningHudGui.Container.Visible) then
+                            miningHudGui.Container.Visible = true
                         end
                     end
-                )
-            end
+                else
+                    selectionBox.Adornee = nil
+                    miningHudGui.Container.Visible = false
+                end
+            end)
         end
-    )
+    end)
 
     --Close open connections when tool is removed
-    character.ChildRemoved:Connect(
-        function(oldChild)
-            if (oldChild:IsA("Tool")) then
-                selectionBox.Adornee = nil
+    character.ChildRemoved:Connect(function(oldChild)
+        if (oldChild:IsA("Tool")) then
+            selectionBox.Adornee = nil
 
-                --Close activationConnection
-                if (activationConnection) then
-                    activationConnection:Disconnect()
-                end
+            --Close activationConnection
+            if (activationConnection) then
+                activationConnection:Disconnect()
+            end
 
-                --CLose adorneeConnection
-                if (adorneeConnection) then
-                    adorneeConnection:Disconnect()
-                end
+            --CLose adorneeConnection
+            if (adorneeConnection) then
+                adorneeConnection:Disconnect()
             end
         end
-    )
+    end)
 end
 
 function ToolHandler:Start()
@@ -145,13 +122,11 @@ function ToolHandler:Start()
     self:BindCharacter()
 
     --Setup character when player resets character
-    self.Player.CharacterAdded:Connect(
-        function(newCharacter)
-            character = newCharacter
+    self.Player.CharacterAdded:Connect(function(newCharacter)
+        character = newCharacter
 
-            self:BindCharacter()
-        end
-    )
+        self:BindCharacter()
+    end)
 
     --Setup selectionBox
     selectionBox = Instance.new("SelectionBox")

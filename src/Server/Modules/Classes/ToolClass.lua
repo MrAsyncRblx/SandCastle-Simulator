@@ -47,7 +47,7 @@ end
 --Clones a new tool into the players Character, equipping it instantly
 function ToolClass:CloneTool(playerObject)
     local toolClone = serverStorage.Resources.Tools:FindFirstChild(self.Id):Clone()
-    toolClone.Parent = (playerObject.Player.Character or playerObject.Player.CharacterAdded:Wait())
+    toolClone.Parent = playerObject.Player.Backpack
 
     return toolClone
 end
