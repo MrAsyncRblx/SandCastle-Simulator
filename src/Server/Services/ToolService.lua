@@ -86,7 +86,7 @@ function ToolService:BreakBlock(player, blockModel)
                 coroutine.yield()
             end
 
-            wait() 
+            wait()
         end
 
         --Destroy block and overwrite coroutine

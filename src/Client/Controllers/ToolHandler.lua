@@ -53,7 +53,7 @@ function ToolHandler:FarmBlock()
 end
 
 --Opens various connections to allow user to farm
-function ToolHandler:BindCharacter() 
+function ToolHandler:BindCharacter()
 
     --Open connection to childAdded
     --Handles the Block adornee and BlockInfoHUD
@@ -139,7 +139,7 @@ function ToolHandler:Start()
 
     mouse.Button1Down:Connect(function()
         if (currentBlock) then
-            local blockDestroyed, targetTime = ToolService:StartBreaking(currentBlock)
+            local targetTime = ToolService:StartBreaking(currentBlock)
         end
     end)
 
