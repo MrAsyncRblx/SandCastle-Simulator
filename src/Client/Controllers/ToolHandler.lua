@@ -139,8 +139,7 @@ function ToolHandler:Start()
 
     mouse.Button1Down:Connect(function()
         if (currentBlock) then
-            local blockDestroyed, targetTime = ToolService:StartFarming(currentBlock)
-            print("Block damaged and or destroyed!", blockDestroyed)
+            local blockDestroyed, targetTime = ToolService:StartBreaking(currentBlock)
         end
     end)
 

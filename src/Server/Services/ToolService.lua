@@ -28,74 +28,84 @@ local BeachService
 --//Handle the cleanup of a partial farm
 --//Called when a Client stops clicking
 function ToolService.Client:StopFarming(player)
-
+    return self.Server:StopBreak(player)
 end
 
 
 --//Handle a new FarmRequest
-function ToolService.Client:StartFarming(player, blockModel)
-    local blockDestroyed, completedTime = self.Server:StartFarming(player, blockModel)
-    return blockDestroyed, completedTime
+function ToolService.Client:StartBreaking(player, blockModel)
+    return self.Server:BreakBlock(player, blockModel)
 end
 
 
-function ToolService:StartFarming(player, blockModel)
+--//Handles the killing of threads to stop a farm
+function ToolService:StopBreak(player)
     local playerObject = PlayerLoaderService:GetPlayerObject(player)
+    local breakThread = playerObject:Get("BreakThread")
 
-    -- Global Debounce
-    if (playerObject:Get("IsFarming")) then return false end;
-    playerObject:Set("IsFarming", true)
+    --Yield coroutine
+    if (breakThread) then
+        playerObject:Set("KillSwitch", true)
 
-    local toolMetaData = MetaDataService:GetMetaData(playerObject:Get("EquippedTool"))
+        return true
+    end
 
-    --Get information about the blockModel
-    local beachContainer = blockModel.Parent.Parent
-    local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
-    local blockObject = beachObject:GetBlockAtPosition(blockModel.MapPosition.Value)
-    local blockMetaData = MetaDataService:GetMetaData(blockObject.Id)
+    return false
+end
 
-    local currentTime = os.time()
-    local blockDestroyed = blockObject:Attack(toolMetaData)
-    local completedTime = currentTime + (blockMetaData.Hardness / toolMetaData.Strength)
-    print(blockMetaData.Hardness)
-    print(toolMetaData.Strength)
 
-    local farmThread = coroutine.create(function()
-        while (os.time() < completedTime) do wait() end
+--//Handles the breaking of blocks
+function ToolService:BreakBlock(player, blockModel)
+    --Localize
+    local playerObject = PlayerLoaderService:GetPlayerObject(player)
+    local toolId = playerObject:Get("EquippedTool")
+    local blockId = tonumber(blockModel.Name)
 
-        blockObject.Block:Destroy()
-        blockObject = nil
+    --Global debounce
+    if (playerObject:Get("BreakThread")) then return false end
+
+    --Grab metaData
+    local toolMetaData = MetaDataService:GetMetaData(toolId)
+    local blockMetaData = MetaDataService:GetMetaData(blockId)
+
+    --Time completion for Client
+    local invokeTime = os.time()
+    local breakCompletion = invokeTime + (blockMetaData.Hardness / toolMetaData.Strength)
+
+    --Create a new coroutine
+    local breakThread = coroutine.create(function()
+        --Wait until breakCompletion time reached
+        while (os.time() < breakCompletion) do 
+            --Check if a killSwitch has been activated
+            if (playerObject:Get("KillSwitch")) then
+                --Reset killSwitch, overwrite coroutine
+                playerObject:Set("KillSwitch", false)
+                playerObject:Set("BreakThread", false)
+
+                --Yield coroutine
+                coroutine.yield()
+            end
+
+            wait() 
+        end
+
+        --Destroy block and overwrite coroutine
+
+
+        --METHOD CALL HERE WILL DETERMINE IF BLOCK IS DAMAGED OR IF BLOCK IS DESTROYED
+        blockModel:Destroy()
+        playerObject:Set("BreakThread", false)
     end)
 
-    coroutine.resume(farmThread)
+    --Set coroutine globally
+    playerObject:Set("BreakThread", breakThread)
 
-    return blockDestroyed, completedTime
+    --Resume coroutine to begin breaking process
+    coroutine.resume(breakThread)
+
+    return breakCompletion
 end
 
-
-function ToolService.Client:FarmBlock(player, beachContainer, blockModel)
-    assert(blockModel:IsDescendantOf(workspace.Beaches), "Invalid blockModel")
-
-    --Get playerObject and lastFarmInfo
-    local playerObject = PlayerLoaderService:GetPlayerObject(player)
-
-    --Get tool information
-    local toolId = playerObject:Get("EquippedTool")
-    local toolMetaData = MetaDataService:GetMetaData(toolId)
-
-    --Get blockObject and blockMetaData using Function Calls from GetBeachObjectFromContainer
-
-
-    -- --Calculate time, in seconds, the tool needs to farm the block
-    -- local farmTimeNeeded = blockMetaData.Hardness / toolMetaData.Strength
-    -- local targetFarmTime = invokeTime + farmTimeNeeded
-
-    -- while (os.time() < targetFarmTime) do
-    --     wait()
-    -- end
-
-    beachObject:FarmBlock(blockModel.MapPosition.Value)
-end
 
 function ToolService:Init()
     --//Services
