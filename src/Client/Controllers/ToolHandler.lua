@@ -27,28 +27,26 @@ local PlayerGui
 
 --//Locals
 local mouse
+local isInFarm
 local character
 local lastBlock
 local miningHudGui
 local selectionBox
+local currentBeach
 local currentBlock
+local mouseButton1Down
 local adorneeConnection
 
 local toolRange = 25
 
 --Method finds target sand, checks debounce and calls server method
-function ToolHandler:FarmBlock()
-    local target = mouse.Target
+function ToolHandler:TryFarm()
+    if (not isInFarm and currentBlock and currentBeach and mouseButton1Down) then
+        isInFarm = true
 
-    --Validate is target is a valid SandBlock
-    if ((target) and (target:IsDescendantOf(workspace.Beaches)) and ((character.PrimaryPart.Position - target.Position).magnitude <= toolRange)) then
-        --Get blockModel and beachContainer
-        local blockModel = target:FindFirstAncestorOfClass("Model")
-        local beachContainer = blockModel:FindFirstAncestorOfClass("Folder").Parent
+        ToolService:StartBreaking(currentBlock, currentBeach)
 
-        if (blockModel and beachContainer) then
-            ToolService:FarmBlock(beachContainer, blockModel)
-        end
+        isInFarm = false
     end
 end
 
@@ -72,6 +70,7 @@ function ToolHandler:BindCharacter()
                     --SandObject has not already been processed
                     if (mouseTarget ~= lastBlock) then
                         currentBlock = mouseTarget:FindFirstAncestorOfClass("Model")
+                        currentBeach = currentBlock.Parent.Parent
 
                         --Change selectionBox lineColor
                         if ((character.PrimaryPart.Position - mouseTarget.Position).magnitude > toolRange) then
@@ -93,6 +92,8 @@ function ToolHandler:BindCharacter()
                         if (not miningHudGui.Container.Visible) then
                             miningHudGui.Container.Visible = true
                         end
+
+                        self:TryFarm()
                     end
                 else
                     currentBlock = nil
@@ -138,12 +139,11 @@ function ToolHandler:Start()
     selectionBox.Parent = workspace.CurrentCamera
 
     mouse.Button1Down:Connect(function()
-        if (currentBlock) then
-            local targetTime = ToolService:StartBreaking(currentBlock)
-        end
+        mouseButton1Down = true
     end)
 
     mouse.Button1Up:Connect(function()
+        mouseButton1Down = false
         ToolService:StopFarming()
     end)
 end

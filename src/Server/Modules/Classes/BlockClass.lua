@@ -51,22 +51,6 @@ function BlockClass.new(blockId, worldPosition, mapPosition, beachContainer)
     return self
 end
 
-
---//Deals damage to BlockObject
---//Returns true if BlockHardness is depleted (<= 0)
---//Returns false if BlockHardness > 0
-function BlockClass:Attack(toolMetaData)
-    if (self.CurrentHardness <= 0) then return false end
-
-    local hardnessAfterAttack = self.CurrentHardness - toolMetaData.Strength
-    if (hardnessAfterAttack <= 0) then
-        return true
-    else
-        return false
-    end
-end
-
-
 --//Creates the physical sandBlock 
 function BlockClass:CreateBlockObject()
 

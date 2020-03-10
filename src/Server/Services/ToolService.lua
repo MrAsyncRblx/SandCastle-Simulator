@@ -25,9 +25,18 @@ local BeachService
 --//Handles incoming request for blockFarming
 
 
-function ToolService:DamageBlock(playerObject, toolMetaData, blockModel)
+function ToolService:DamageBlock(playerObject, toolMetaData, blockModel, beachContainer)
+    --Get blockObject
+    local beachObject = BeachService:GetBeachObjectFromContainer(beachContainer)
+    local blockObject = beachObject:GetBlockAtPosition(blockModel:FindFirstChild("MapPosition").Value)
+    local hardnessAfterAttack = (blockObject.CurrentHardness - toolMetaData.Strength)
 
-
+    --Damage the thing
+    if (hardnessAfterAttack <= 0) then
+        beachObject:DestroyBlock(blockObject.MapPosition)
+    else
+        blockObject.CurrentHardness = hardnessAfterAttack
+    end
 end
 
 
@@ -40,8 +49,8 @@ end
 
 --//Handle a new FarmRequest
 --//Called when a Client starts clicking
-function ToolService.Client:StartBreaking(player, blockModel)
-    return self.Server:BreakBlock(player, blockModel)
+function ToolService.Client:StartBreaking(player, blockModel, beachContainer)
+    return self.Server:BreakBlock(player, blockModel, beachContainer)
 end
 
 
@@ -62,7 +71,7 @@ end
 
 
 --//Handles the breaking of blocks
-function ToolService:BreakBlock(player, blockModel)
+function ToolService:BreakBlock(player, blockModel, beachContainer)
     --Localize
     local playerObject = PlayerLoaderService:GetPlayerObject(player)
     local toolId = playerObject:Get("EquippedTool")
@@ -97,7 +106,7 @@ function ToolService:BreakBlock(player, blockModel)
         end
 
         --Damage block and remove coroutine
-        self:DamageBlock(playerObject, toolMetaData, blockModel)
+        self:DamageBlock(playerObject, toolMetaData, blockModel, beachContainer)
         playerObject:Set("BreakThread", false)
     end)
 
