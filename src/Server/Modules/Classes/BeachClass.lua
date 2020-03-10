@@ -53,7 +53,7 @@ end
 ]]
 
 --//Runs neccessary steps to farm the TargetBlock and spawn adjacentBlocks
-function BeachClass:FarmBlock(targetBlockPosition)
+function BeachClass:DestroyBlock(targetBlockPosition)
     --Wipe targetBlock like thanos
     local currentBlock = self:GetBlockAtPosition(targetBlockPosition)
     currentBlock.Block:Destroy()

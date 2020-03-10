@@ -25,6 +25,12 @@ local BeachService
 --//Handles incoming request for blockFarming
 
 
+function ToolService:DamageBlock(playerObject, toolMetaData, blockModel)
+
+
+end
+
+
 --//Handle the cleanup of a partial farm
 --//Called when a Client stops clicking
 function ToolService.Client:StopFarming(player)
@@ -33,6 +39,7 @@ end
 
 
 --//Handle a new FarmRequest
+--//Called when a Client starts clicking
 function ToolService.Client:StartBreaking(player, blockModel)
     return self.Server:BreakBlock(player, blockModel)
 end
@@ -89,11 +96,8 @@ function ToolService:BreakBlock(player, blockModel)
             wait()
         end
 
-        --Destroy block and overwrite coroutine
-
-
-        --METHOD CALL HERE WILL DETERMINE IF BLOCK IS DAMAGED OR IF BLOCK IS DESTROYED
-        blockModel:Destroy()
+        --Damage block and remove coroutine
+        self:DamageBlock(playerObject, toolMetaData, blockModel)
         playerObject:Set("BreakThread", false)
     end)
 
