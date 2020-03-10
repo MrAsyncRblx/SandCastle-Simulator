@@ -70,6 +70,8 @@ function ToolHandler:BindCharacter()
                     --SandObject has not already been processed
                     if (mouseTarget ~= lastBlock) then
                         currentBlock = mouseTarget:FindFirstAncestorOfClass("Model")
+
+                        --This is actually so jank it scares me
                         currentBeach = currentBlock.Parent.Parent
 
                         --Change selectionBox lineColor
