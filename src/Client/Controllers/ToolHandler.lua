@@ -35,8 +35,6 @@ function ToolHandler:Start()
 
     BlockSelection.CollectionBegan:Connect(function(currentBlock, isInBounds)
         print("Player is farming! isInBounds: " .. tostring(isInBounds))
-
-        ToolService
     end)
 
     BlockSelection.CollectionEnded:Connect(function(oldBlock)
