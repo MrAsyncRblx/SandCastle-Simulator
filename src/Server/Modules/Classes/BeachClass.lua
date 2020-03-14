@@ -56,6 +56,9 @@ end
 function BeachClass:DestroyBlock(targetBlockPosition)
     --Wipe targetBlock like thanos
     local currentBlock = self:GetBlockAtPosition(targetBlockPosition)
+
+    if (currentBlock == nil or currentBlock.Block == nil) then return end
+
     currentBlock.Block:Destroy()
 
     --Mark position as Collected
