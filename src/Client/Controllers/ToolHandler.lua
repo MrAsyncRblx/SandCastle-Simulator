@@ -10,10 +10,10 @@
 local ToolHandler = {}
 
 --//Api
+local BlockCollection
 local BlockSelection
 
 --//Services
-local ToolService
 
 --//Controllers
 
@@ -22,6 +22,7 @@ local ToolService
 --//Data
 
 --//Locals
+
 
 function ToolHandler:Start()
 
@@ -35,6 +36,8 @@ function ToolHandler:Start()
 
     BlockSelection.CollectionBegan:Connect(function(currentBlock, isInBounds)
         print("Player is farming! isInBounds: " .. tostring(isInBounds))
+
+        BlockCollection:PlayerCollectionPatch(currentBlock)
     end)
 
     BlockSelection.CollectionEnded:Connect(function(oldBlock)
@@ -45,10 +48,10 @@ end
 
 function ToolHandler:Init()
     --//Api
+    BlockCollection = self.Services.BlockCollection
     BlockSelection = self.Modules.Api.BlockSelection
 
     --//Services
-    ToolService = self.Services.ToolService
 
     --//Controllers
 
