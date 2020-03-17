@@ -10,7 +10,7 @@
 local ToolHandler = {}
 
 --//Api
-local BlockCollection
+local ClientApiService
 local BlockSelection
 
 --//Services
@@ -35,20 +35,18 @@ function ToolHandler:Start()
     end)
 
     BlockSelection.CollectionBegan:Connect(function(currentBlock, isInBounds)
-        print("Player is farming! isInBounds: " .. tostring(isInBounds))
-
-        BlockCollection:PlayerCollectionPatch(currentBlock)
+        ClientApiService.PlayerStartedCollecting:Fire(currentBlock)
     end)
 
-    BlockSelection.CollectionEnded:Connect(function(oldBlock)
-        print("Player stopped farming")
+    BlockSelection.CollectionEnded:Connect(function(currentBlock)
+        ClientApiService.PlayerStoppedCollecting:Fire(oldBlock)
     end)
 
 end
 
 function ToolHandler:Init()
     --//Api
-    BlockCollection = self.Services.BlockCollection
+    ClientApiService = self.Services.ClientApiService
     BlockSelection = self.Modules.Api.BlockSelection
 
     --//Services

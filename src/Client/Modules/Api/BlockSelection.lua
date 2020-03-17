@@ -5,7 +5,7 @@
 
 --[[
     API Reference
-
+ 
     Events:
         SelectionChanged => Fired when client selects a new block
               Returns Instance oldSelection, Instance newSelection, boolean isInBounds
@@ -44,6 +44,12 @@ local selectedBlock
 
 local DISTANCE_BOUND = 15
 
+local ACCEPTED_INPUT_TYPES = {
+    [Enum.UserInputType.MouseButton1] = true,
+    [Enum.UserInputType.Touch] = true,
+    [Enum.KeyCode.ButtonR2] = true
+}
+
 local SelectionChanged
 local SelectionLost
 local CollectionBegan
@@ -81,7 +87,10 @@ function BlockSelection:FindTargetBlock()
             end
         end
     else
-        SelectionLost:Fire(selectedBlock)
+        --Only trigger event once
+        if (selectedBlock) then
+            SelectionLost:Fire(selectedBlock)
+        end
 
         --If no valid block exists, disable selectionBox
         selectionBox.Adornee = nil
@@ -108,6 +117,14 @@ function BlockSelection:BindCharacter()
     character.ChildRemoved:Connect(function(oldTool)
         
         if (oldTool:IsA("Tool")) then
+            --Only trigger event once
+            if (selectedBlock) then
+                SelectionLost:Fire(selectedBlock)
+            end
+
+            --If no valid block exists, disable selectionBox
+            selectionBox.Adornee = nil
+            selectedBlock = nil
 
             RunService:UnbindFromRenderStep("tempTargetFinder")
         end
@@ -133,7 +150,7 @@ function BlockSelection:Start()
     --Fire PlayerClicked when playerClicks
     UserInputService.InputBegan:Connect(function(inputObject, gameProcessed)
         if (not gameProcessed) then
-            if (inputObject.UserInputType == Enum.UserInputType.MouseButton1) or (inputObject.UserInputType == Enum.UserInputType.Touch) then
+            if (ACCEPTED_INPUT_TYPES[inputObject.KeyCode] or ACCEPTED_INPUT_TYPES[inputObject.UserInputType]) then
                 
                 CollectionBegan:Fire(selectedBlock, isInBounds)
             end
@@ -142,7 +159,7 @@ function BlockSelection:Start()
 
     UserInputService.InputEnded:Connect(function(inputObject, gameProcessed)
         if (not gameProcessed) then
-            if (inputObject.UserInputType == Enum.UserInputType.MouseButton1) or (inputObject.UserInputType == Enum.UserInputType.Touch) then
+            if (ACCEPTED_INPUT_TYPES[inputObject.KeyCode] or ACCEPTED_INPUT_TYPES[inputObject.UserInputType]) then
                 
                 CollectionEnded:Fire(selectedBlock)
             end
